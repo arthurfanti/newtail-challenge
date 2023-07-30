@@ -18,10 +18,11 @@
 
 body {
   color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+  min-height: 100vh;
+  background: conic-gradient(
+    at left bottom,
+    rgb(08, 12, 22),
+    rgb(20, 36, 44),
+    rgb(16, 24, 36)
+  );
 }
