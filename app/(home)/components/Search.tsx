@@ -17,7 +17,7 @@ export default function Search() {
       <input
         name="search"
         type="search"
-        className="flex flex-auto p-2 outline-none rounded h-[32px] font-light text-slate-400 placeholder:text-slate-300"
+        className="flex flex-auto p-2 outline-none rounded h-8 md:h-12 bg-slate-50 font-light text-slate-400 placeholder:text-slate-300"
         placeholder="search movies..."
       />
     </form>
