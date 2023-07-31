@@ -4,29 +4,54 @@ import useMovie from "@/api/movie";
 import Link from "next/link";
 import { motion, useScroll, useTransform } from "framer-motion";
 import PageSkeleton from "./components/Skeleton";
+import useLocalStorage from "@/hooks/useLocalStorage";
+import { BookmarkIcon as BookmarkIconOutline } from "@heroicons/react/24/outline";
+import { BookmarkIcon as BookmarkIconSolid } from "@heroicons/react/24/solid";
 
 export default function Page({ params }: { params: { slug: string } }) {
   const { scrollYProgress } = useScroll();
   const { data, isLoading } = useMovie(params.slug);
+  const [bookmarks, setBookmarks] = useLocalStorage<string[]>(
+    "bookmarks",
+    [],
+  );
 
   const imageY = useTransform(scrollYProgress, [0, 1], [0, 400]);
 
-  if (isLoading) {
+  if (isLoading || !data) {
     return <PageSkeleton />;
   }
+
+  const handleToggleBookmarks = () => {
+    // convert to Set so its easier to work with
+    const _bookmarks = new Set(bookmarks);
+    _bookmarks.has(data?.imdbID)
+      ? _bookmarks.delete(data?.imdbID)
+      : _bookmarks.add(data?.imdbID);
+
+    // store as Array to be stringified
+    setBookmarks(Array.from(_bookmarks));
+  };
+
+  console.log(bookmarks);
   return (
     <main>
       <section
         role="heading"
         className="flex flex-wrap flex-col justify-center content-center my-4 md:mt-40 md:mb-6 lg:mt-80 lg:mb-10 mx-1 md:mx-8 lg:mx-40"
       >
-        <Link href="/">←</Link>
-        <span className="flex items-center gap-2 font-light text-slate-400">
+        <Link className="w-min" href="/">←</Link>
+        <motion.div
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.3, duration: 0.3, ease: "easeInOut" }}
+          className="flex items-center gap-2 font-light text-slate-400"
+        >
           {data?.Runtime} · {data?.Year} ·{" "}
           <strong className="py-1 px-2 rounded bg-slate-300 text-slate-600 text-xs font-semibold">
             {data?.Type}
           </strong>
-        </span>
+        </motion.div>
         <motion.h1
           initial={{ y: 200, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
@@ -36,6 +61,28 @@ export default function Page({ params }: { params: { slug: string } }) {
         >
           {data?.Title}
         </motion.h1>
+        <motion.button
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          exit={{ y: 40, opacity: 0 }}
+          transition={{ delay: 0.3, duration: 0.3, ease: "easeInOut" }}
+          onClick={handleToggleBookmarks}
+          className="appearance-none w-min z-10 text-xs cursor-pointer text-slate-400 font-light"
+        >
+          {bookmarks.indexOf(data.imdbID) !== -1
+            ? (
+              <span className="flex items-center flex-nowrap whitespace-nowrap">
+                <BookmarkIconSolid className="w-6 h-6 text-pink-300" />
+                remove from bookmarks{" "}
+              </span>
+            )
+            : (
+              <span className="flex items-center flex-nowrap whitespace-nowrap">
+                <BookmarkIconOutline className="w-6 h-6 text-slate-600" />
+                add to bookmarks{" "}
+              </span>
+            )}
+        </motion.button>
       </section>
       <div className="relative w-full h-max md:h-[420px] overflow-hidden">
         <motion.img

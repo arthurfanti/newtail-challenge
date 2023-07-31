@@ -17,7 +17,7 @@ export default function HomeLayout({ children }: LocalProps) {
   return (
     <html lang="en">
       <body className={rslab.className}>
-        <AnimatePresence mode="popLayout" initial={false}>
+        <AnimatePresence mode="popLayout">
           <AppContextProvider>{children}</AppContextProvider>
         </AnimatePresence>
       </body>
