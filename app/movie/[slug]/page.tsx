@@ -2,12 +2,17 @@
 
 import useMovie from "@/api/movie";
 import Link from "next/link";
+import { motion, useScroll, useTransform } from "framer-motion";
+import PageSkeleton from "./components/Skeleton";
 
 export default function Page({ params }: { params: { slug: string } }) {
+  const { scrollYProgress } = useScroll();
   const { data, isLoading } = useMovie(params.slug);
 
+  const imageY = useTransform(scrollYProgress, [0, 1], [0, 400]);
+
   if (isLoading) {
-    return <h1 className="text-9xl">carregando</h1>;
+    return <PageSkeleton />;
   }
   return (
     <main>
@@ -22,25 +27,49 @@ export default function Page({ params }: { params: { slug: string } }) {
             {data?.Type}
           </strong>
         </span>
-        <h1 className="text-xl md:text-5xl lg:text-8xl font-extrabold">
+        <motion.h1
+          initial={{ y: 200, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          exit={{ y: 200, opacity: 0 }}
+          transition={{ duration: 0.3, ease: "easeInOut" }}
+          className="text-xl md:text-5xl lg:text-8xl font-extrabold"
+        >
           {data?.Title}
-        </h1>
+        </motion.h1>
       </section>
       <div className="relative w-full h-max md:h-[420px] overflow-hidden">
-        <img
+        <motion.img
+          initial={{ y: 400, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          exit={{ y: 400, opacity: 0 }}
+          transition={{ delay: 0.2, duration: 0.4, ease: "easeInOut" }}
           src={data?.Poster}
-          className="relative md:top-[-220px] lg:top-[-280px] lg:min-w-full opacity-70"
+          style={window.innerWidth > 640 ? { y: imageY } : {}}
+          className="relative md:blur-sm md:top-[-400px] lg:top-[-400px] lg:min-w-full opacity-70"
         />
-        <div className="absolute top-4 left-10">
-          <span className="rounded-s p-2 backdrop-blur-sm bg-white/20 text-xs font-semibold text-neutral-900">
+        <div className="absolute hidden md:block top-4 left-10">
+          <span className="rounded-s p-2 backdrop-blur-sm bg-white/30 text-xs font-semibold text-neutral-900">
             {data?.Genre}
           </span>
-          <span className="rounded-e p-2 backdrop-blur-sm bg-orange-400/30 text-xs font-semibold text-neutral-100">
+          <span className="rounded-e p-2 backdrop-blur-sm bg-orange-300/60 text-xs font-semibold text-neutral-100">
             IMDb {data?.imdbRating}
           </span>
         </div>
+        <img
+          src={data?.Poster}
+          alt={data?.Title}
+          className="absolute hidden md:block top-4 right-10 w-[240px] rounded drop-shadow-sm ring-2 ring-slate-800"
+        />
       </div>
       <div className="flex flex-wrap flex-col justify-center content-center gap-2 lg:gap-12 mx-1 md:mx-8 lg:mx-40 my-1 md:my-3 lg:my-6">
+        <div className="md:hidden flex flex-auto flex-wrap flex-col font-light">
+          <span className="text-slate-400 font-semibold">
+            IMDb: {data?.imdbRating}
+            <small className="font-light ml-1">({data?.imdbVotes} votos)</small>
+          </span>
+          <span className="text-slate-400 font-semibold">Genre:</span>
+          {data?.Genre}
+        </div>
         <div className="flex flex-auto flex-wrap flex-col font-light">
           <span className="text-slate-400 font-semibold">Plot:</span>
           {data?.Plot}

@@ -1,9 +1,10 @@
 "use client";
 
-import useAppContext from "@/providers/App/context";
 import Link from "next/link";
 import { FormEvent } from "react";
+import { motion } from "framer-motion";
 import PageSkeleton from "./components/Skeleton";
+import useAppContext from "@/providers/App/context";
 
 export default function Home() {
   const { setQuery, data } = useAppContext();
@@ -35,18 +36,25 @@ export default function Home() {
       </section>
       <div className="grid grid-cols-1 auto-rows-auto my-4 md:grid-cols-4 lg:grid-cols-6 gap-2 md:gap-8">
         {data?.movies?.map((movie) => (
-          <div
+          <motion.div
+            initial={{ y: 100, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: 100, opacity: 0 }}
             key={movie.imdbID}
             className="rounded drop-shadow-sm overflow-hidden"
           >
-            <Link href={`/movie/${movie.imdbID}`}>
-              <img
+            <Link
+              href={`/movie/${movie.imdbID}`}
+            >
+              <motion.img
+                whileHover={{ scale: 1.04 }}
+                transition={{ ease: "easeInOut", duration: 0.2 }}
                 className="w-max h-[100%]"
                 src={movie.Poster}
                 alt={movie.Title}
               />
             </Link>
-          </div>
+          </motion.div>
         ))}
       </div>
     </main>
