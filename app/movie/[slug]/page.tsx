@@ -7,6 +7,7 @@ import PageSkeleton from "./components/Skeleton";
 import useLocalStorage from "@/hooks/useLocalStorage";
 import { BookmarkIcon as BookmarkIconOutline } from "@heroicons/react/24/outline";
 import { BookmarkIcon as BookmarkIconSolid } from "@heroicons/react/24/solid";
+import { handleToggleBookmarks } from "@/utils";
 
 export default function Page({ params }: { params: { slug: string } }) {
   const { scrollYProgress } = useScroll();
@@ -22,18 +23,11 @@ export default function Page({ params }: { params: { slug: string } }) {
     return <PageSkeleton />;
   }
 
-  const handleToggleBookmarks = () => {
-    // convert to Set so its easier to work with
-    const _bookmarks = new Set(bookmarks);
-    _bookmarks.has(data?.imdbID)
-      ? _bookmarks.delete(data?.imdbID)
-      : _bookmarks.add(data?.imdbID);
-
-    // store as Array to be stringified
-    setBookmarks(Array.from(_bookmarks));
+  const handleClickBookmark = () => {
+    const newBookmarks = handleToggleBookmarks(bookmarks, data.imdbID);
+    setBookmarks(newBookmarks);
   };
 
-  console.log(bookmarks);
   return (
     <main>
       <section
@@ -66,7 +60,7 @@ export default function Page({ params }: { params: { slug: string } }) {
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: 40, opacity: 0 }}
           transition={{ delay: 0.3, duration: 0.3, ease: "easeInOut" }}
-          onClick={handleToggleBookmarks}
+          onClick={handleClickBookmark}
           className="appearance-none w-min z-10 text-xs cursor-pointer text-slate-400 font-light"
         >
           {bookmarks.indexOf(data.imdbID) !== -1
